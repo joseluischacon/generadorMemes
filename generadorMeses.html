@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Memes</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #8360c3, #2ebf91);
+            color: #fff;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #meme-generator {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        canvas {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="text"], select, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            margin: 5px;
+        }
+
+        input[type="text"], select {
+            width: 250px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #ff6f61;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e95a4e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generador de Memes</h1>
+    <div id="meme-generator">
+        <select id="meme-template">
+            <option value="">Selecciona una plantilla</option>
+            <option value="drake">Drake Hotline Bling</option>
+            <option value="distracted-boyfriend">Novio Distraído</option>
+            <option value="two-buttons">Dos Botones</option>
+        </select>
+        <input type="file" id="upload-image" accept="image/*">
+        <input type="text" id="top-text" placeholder="Texto superior">
+        <input type="text" id="bottom-text" placeholder="Texto inferior">
+        <button id="generate-meme">Generar Meme</button>
+        <canvas id="meme-canvas" width="500" height="500"></canvas>
+        <button id="download-meme">Descargar Meme</button>
+    </div>
+
+    <script>
+        const memeCanvas = document.getElementById('meme-canvas');
+        const ctx = memeCanvas.getContext('2d');
+        const memeTemplate = document.getElementById('meme-template');
+        const uploadImage = document.getElementById('upload-image');
+        const topTextInput = document.getElementById('top-text');
+        const bottomTextInput = document.getElementById('bottom-text');
+        const generateMemeButton = document.getElementById('generate-meme');
+        const downloadMemeButton = document.getElementById('download-meme');
+
+        const memeTemplates = {
+            "drake": "https://i.imgflip.com/30b1gx.jpg",
+            "distracted-boyfriend": "https://i.imgflip.com/1ur9b0.jpg",
+            "two-buttons": "https://i.imgflip.com/1g8my4.jpg"
+        };
+
+        let image = new Image();
+
+        function drawMeme(image) {
+            ctx.clearRect(0, 0, memeCanvas.width, memeCanvas.height);
+            ctx.drawImage(image, 0, 0, memeCanvas.width, memeCanvas.height);
+
+            ctx.font = 'bold 36px Impact';
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            // Top text
+            const topText = topTextInput.value.toUpperCase();
+            ctx.fillText(topText, memeCanvas.width / 2, 10);
+            ctx.strokeText(topText, memeCanvas.width / 2, 10);
+
+            // Bottom text
+            const bottomText = bottomTextInput.value.toUpperCase();
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(bottomText, memeCanvas.width / 2, memeCanvas.height - 10);
+            ctx.strokeText(bottomText, memeCanvas.width / 2, memeCanvas.height - 10);
+        }
+
+        memeTemplate.addEventListener('change', function () {
+            const selectedTemplate = memeTemplate.value;
+            if (selectedTemplate && memeTemplates[selectedTemplate]) {
+                image.src = memeTemplates[selectedTemplate];
+            }
+        });
+
+        uploadImage.addEventListener('change', function () {
+            const file = uploadImage.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        image.onload = function () {
+            drawMeme(image);
+        };
+
+        generateMemeButton.addEventListener('click', function () {
+            drawMeme(image);
+        });
+
+        downloadMemeButton.addEventListener('click', function () {
+            const link = document.createElement('a');
+            link.href = memeCanvas.toDataURL('image/png');
+            link.download = 'meme.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>
